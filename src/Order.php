@@ -88,29 +88,49 @@ class Order
 		// if the customer is gold we apply 40% discount and ...
 		if($this->gold_customer) {
 			$total = $total * 0.6;
-			// ...if amount is over 500 we apply further 20% discount
-			if($total > 500) {
-				$total = $total * 0.8;
-			}
+			$total = $this->applyDiscountOverThreshold($total, 0.8);
 		}
 
 		//if the customer is silver we apply 20% discount and ...
 		else if($this->silver_customer) {
 			$total = $total * 0.8;
-			// ...if amount is over 500 we apply further 10% discount
-			if($total>500) {
-				$total = $total * 0.9;
-			}
+	
+			$total = $this->applyDiscountOverThreshold($total, 0.9);
 		} 
 		else {
-			// if customer subscribed no fidelity program we apply 10% over 500
-			if($total > 500) {
-				$total = $total * 0.9;
-			}
+			
+			$total = $this->applyDiscountOverThreshold($total, 0.9);
 		}
 
 		if($currency){
 			return 	round($total, 2) . ' ' . $currency;
 		}else return round($total, 2);
+	}
+
+	private function ifAmountIsOver500WeApplyFurther20Discount($total)
+	{
+		if($total > 500) {
+				$total = $total * 0.8;
+		}
+		return $total;
+	}
+
+	private function ifAmountIsOver500WeApplyFurther10Discount($total)
+	{
+		if($total > 500) {
+				$total = $total * 0.9;
+		}
+		return $total;
+	}
+
+	private function applyDiscountOverThreshold($total, $discount = 1)
+	{
+		$threshold = 500;
+
+		if($total > $threshold) {
+			$total = $total * $discount;
+		}
+
+		return $total;	
 	}
 }

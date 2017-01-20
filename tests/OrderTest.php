@@ -89,8 +89,8 @@ class OrderTest extends TestCase
 
 	public function testGetCustomer()
 	{
-		$this->order->setCustomer('Jean Pistel');
-		$this->assertEquals('Jean Pistel', $this->order->getCustomer());
+		$this->order->getCustomer()->setName('Jean Pistel');
+		$this->assertEquals('Jean Pistel', (string)$this->order->getCustomer());
 	}
 
 	public function testShippingAddress()
@@ -99,9 +99,10 @@ class OrderTest extends TestCase
 		$this->assertEquals('84 Doe Street, London', $this->order->getShippingAddress());
 	}
 
+
 	public function testDiscountForGoldSilverCustomer()
 	{
-		$this->assertFalse($this->order->isGoldCustomer());
+		$this->assertFalse($this->order->getCustomer()->isGold());
 
 		$items = array(
 			'34tr45' => array(
@@ -117,9 +118,9 @@ class OrderTest extends TestCase
 			);
 		$this->order->setItems($items);
 		$this->assertEquals(19.98 + 69.99, $this->order->getTotal());
-		$this->order->silver_customer = true;
+		$this->order->getCustomer()->makeSilver();
 		$this->assertEquals(71.98, $this->order->getTotal());
-		$this->order->gold_customer = true;
+		$this->order->getCustomer()->makeGold();
 		$this->assertEquals(53.98, $this->order->getTotal());
 	}
 
@@ -130,7 +131,7 @@ class OrderTest extends TestCase
 			'34tr45' => array(
 								'price'=> 300,
 								'description' => 'A very good CD by Jane Doe.',
-								'quantity' => 1
+								'quantity' => 2
 							),
 			'34tr89' => array(
 								'price' => 270,
@@ -139,6 +140,12 @@ class OrderTest extends TestCase
 							)
 			);
 		$this->order->setItems($items);
-		$this->assertEquals(570 * 0.9, $this->order->getTotal());
+		$this->assertEquals(870 * 0.9, $this->order->getTotal());
+
+		$this->order->getCustomer()->makeSilver();
+		$this->assertEquals(870 * 0.8 * 0.9, $this->order->getTotal());
+
+		$this->order->getCustomer()->makeGold();
+		$this->assertEquals(870 * 0.6 * 0.8, $this->order->getTotal());
 	}
 }

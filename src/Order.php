@@ -1,5 +1,9 @@
 <?php
+
 namespace App;
+
+use App\Customer;
+
 /**
  * Class description.
  *
@@ -9,20 +13,15 @@ class Order
 {
 
 	const DISCOUNT_THRESHOLD = 500;
-
-	public $gold_customer = false;
-	public $silver_customer = false;
-
 	public $items = array();
-
-	protected $first_name;
-	protected $last_name;
-	protected $customer_address;
-	protected $customer_city;
-	protected $customer_country;
+	protected $customer;
 	protected $shipping_address;
 
-	
+	public function __construct() 
+	{
+		$this->customer = new Customer();
+	}
+
 	public function setItem($code, $price, $description, $quantity)
 	{
 		$this->items[] = array('code' => $code,
@@ -41,16 +40,12 @@ class Order
 	{
 		return $this->items;
 	}
-
-	public function setCustomer($customer)
-	{
-		list($this->first_name, $this->last_name) = explode(' ', $customer);
-	}
-
+	
 	public function getCustomer()
 	{
-		return $this->first_name . ' ' . $this->last_name;
+		return $this->customer;
 	}
+
 
 	public function setShippingAddress($address)
 	{
@@ -62,9 +57,16 @@ class Order
 		return $this->shipping_address;
 	}
 
-	public function isGoldCustomer()
+	private function applyDiscountOverThreshold($total, $discount = 1)
 	{
-		return $this->gold_customer;
+		if($total > self::DISCOUNT_THRESHOLD) {
+			$total = $this->applyDiscount($total, $discount);
+		}
+		return $total;	
+	}
+
+	private function applyDiscount($total, $discount){
+		return $total * $discount;
 	}
 
 	public function getTotal()
@@ -88,13 +90,13 @@ class Order
 		}
 
 		// if the customer is gold we apply 40% discount and ...
-		if($this->gold_customer) {
+		if($this->customer->isGold()) {
 			$threshold_discount = 0.8;
 			$total = $this->applyDiscount($total, 0.6);
 		}
 
 		//if the customer is silver we apply 20% discount and ...
-		else if($this->silver_customer) {
+		else if($this->customer->isSilver()) {
 			$threshold_discount = 0.9;
 			$total = $this->applyDiscount($total, 0.8);
 		} 
@@ -108,15 +110,5 @@ class Order
 	}
 
 
-	private function applyDiscountOverThreshold($total, $discount = 1)
-	{
-		if($total > self::DISCOUNT_THRESHOLD) {
-			$total = $this->applyDiscount($total, $discount);
-		}
-		return $total;	
-	}
-
-	private function applyDiscount($total, $discount){
-		return $total * $discount;
-	}
+	
 }

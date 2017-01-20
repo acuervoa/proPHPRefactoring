@@ -57,7 +57,7 @@ class Order
 		return $this->shipping_address;
 	}
 
-	private function applyDiscountOverThreshold($total, $discount = 1)
+	public function applyDiscountOverThreshold($total, $discount = 1)
 	{
 		if($total > self::DISCOUNT_THRESHOLD) {
 			$total = $this->applyDiscount($total, $discount);
@@ -65,7 +65,7 @@ class Order
 		return $total;	
 	}
 
-	private function applyDiscount($total, $discount){
+	public function applyDiscount($total, $discount){
 		return $total * $discount;
 	}
 
@@ -89,21 +89,8 @@ class Order
 			}
 		}
 
-		// if the customer is gold we apply 40% discount and ...
-		if($this->customer->isGold()) {
-			$threshold_discount = 0.8;
-			$total = $this->applyDiscount($total, 0.6);
-		}
+		$total = $this->customer->getAffiliation()->calculateDiscount($this, $total);
 
-		//if the customer is silver we apply 20% discount and ...
-		else if($this->customer->isSilver()) {
-			$threshold_discount = 0.9;
-			$total = $this->applyDiscount($total, 0.8);
-		} 
-		else {
-			$threshold_discount = 0.9;
-		}
-		$total = $this->applyDiscountOverThreshold($total, $threshold_discount);
 		if($currency){
 			return 	round($total, 2) . ' ' . $currency;
 		}else return round($total, 2);

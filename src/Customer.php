@@ -2,8 +2,18 @@
 
 namespace App;
 
+use App\GoldAffiliation;
+use App\NullAffiliation;
+use App\SilverAffiliation;
+
 class Customer 
 {
+	const GOLD = 'gold';
+	const SILVER = 'silver';
+
+	protected $type;
+	protected $affiliation;
+
 	public $is_gold = false;
 	public $is_silver = false;
 
@@ -13,23 +23,29 @@ class Customer
 	protected $customer_city;
 	protected $customer_country;
 	
+
+	public function __construct() 
+	{
+		$this->affiliation = new NullAffiliation();	
+	}
+
 	public function isGold()
 	{
-		return $this->is_gold;
+		return $this->affiliation->getType() == self::GOLD;
 	}
 
 	public function makeGold()
 	{
-		$this->is_gold = true;
+		$this->affiliation = new GoldAffiliation();
 	}
 
 	public function isSilver(){
-		return $this->is_silver;
+		return $this->affiliation->getType() == self::SILVER;
 	}
 
 	public function makeSilver()
 	{
-		$this->is_silver = true;
+		$this->affiliation = new SilverAffiliation();
 	}
 
 	public function setName($customer)
@@ -39,6 +55,11 @@ class Customer
 
 	public function __toString(){
 		return $this->first_name . ' ' . $this->last_name;
+	}
+
+	public function getAffiliation()
+	{
+		return $this->affiliation;
 	}
 
 }

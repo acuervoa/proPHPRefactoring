@@ -8,6 +8,8 @@ namespace App;
 class Order
 {
 
+	const DISCOUNT_THRESHOLD = 500;
+
 	public $gold_customer = false;
 	public $silver_customer = false;
 
@@ -87,50 +89,34 @@ class Order
 
 		// if the customer is gold we apply 40% discount and ...
 		if($this->gold_customer) {
-			$total = $total * 0.6;
-			$total = $this->applyDiscountOverThreshold($total, 0.8);
+			$threshold_discount = 0.8;
+			$total = $this->applyDiscount($total, 0.6);
 		}
 
 		//if the customer is silver we apply 20% discount and ...
 		else if($this->silver_customer) {
-			$total = $total * 0.8;
-	
-			$total = $this->applyDiscountOverThreshold($total, 0.9);
+			$threshold_discount = 0.9;
+			$total = $this->applyDiscount($total, 0.8);
 		} 
 		else {
-			
-			$total = $this->applyDiscountOverThreshold($total, 0.9);
+			$threshold_discount = 0.9;
 		}
-
+		$total = $this->applyDiscountOverThreshold($total, $threshold_discount);
 		if($currency){
 			return 	round($total, 2) . ' ' . $currency;
 		}else return round($total, 2);
 	}
 
-	private function ifAmountIsOver500WeApplyFurther20Discount($total)
-	{
-		if($total > 500) {
-				$total = $total * 0.8;
-		}
-		return $total;
-	}
-
-	private function ifAmountIsOver500WeApplyFurther10Discount($total)
-	{
-		if($total > 500) {
-				$total = $total * 0.9;
-		}
-		return $total;
-	}
 
 	private function applyDiscountOverThreshold($total, $discount = 1)
 	{
-		$threshold = 500;
-
-		if($total > $threshold) {
-			$total = $total * $discount;
+		if($total > self::DISCOUNT_THRESHOLD) {
+			$total = $this->applyDiscount($total, $discount);
 		}
-
 		return $total;	
+	}
+
+	private function applyDiscount($total, $discount){
+		return $total * $discount;
 	}
 }
